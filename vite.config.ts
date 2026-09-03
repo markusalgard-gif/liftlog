@@ -3,8 +3,15 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vite'
 
+// Served from a GitHub Pages project subpath (https://<user>.github.io/liftlog/),
+// so every asset URL, the service worker scope, and the manifest start_url all
+// have to agree on that prefix — a subpath mismatch is the classic way to get a
+// PWA that loads but refuses to install or go offline.
+const BASE = '/liftlog/'
+
 // https://vite.dev/config/
 export default defineConfig({
+  base: BASE,
   plugins: [
     react(),
     tailwindcss(),
@@ -19,7 +26,8 @@ export default defineConfig({
         background_color: '#f2dcc0',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
+        scope: BASE,
+        start_url: BASE,
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
