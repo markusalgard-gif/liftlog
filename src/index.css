@@ -1,0 +1,93 @@
+@import 'tailwindcss';
+@import '@fontsource/barlow-condensed/500.css';
+@import '@fontsource/barlow-condensed/600.css';
+@import '@fontsource/barlow-condensed/700.css';
+@import '@fontsource/barlow/400.css';
+@import '@fontsource/barlow/500.css';
+@import '@fontsource/barlow/600.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/600.css';
+
+@theme {
+  /* Exercise category colours — non-negotiable, matches the spreadsheet.
+   * Hue identity (blue/pink/green/gold) kept exactly per spec; lightness
+   * and saturation retuned to read clearly on a warm, light "ledger" page
+   * instead of the original near-black one. */
+  --color-lower: #3d6ea3; /* blue */
+  --color-pull: #cf4d80; /* pink/red */
+  --color-push: #4a8f5c; /* green */
+  --color-core: #b8862a; /* gold */
+  --color-neck: #b8862a; /* gold, same family as core */
+
+  /* "Ledger" theme */
+  --color-paper: #f2dcc0; /* page background — peach sherbet */
+  --color-card: #fbf3e7; /* card / surface background */
+  --color-card-alt: #f0e1c4; /* nested surfaces, inputs, pressed states */
+  --color-line: #e2c89e; /* borders / dividers */
+  --color-ink: #2a2015; /* primary text */
+  --color-ink-muted: #8a7458; /* secondary / muted text */
+  --color-accent: #1f9da3; /* turquoise */
+  --color-accent-ink: #fbf3e7; /* text/icons on an accent-filled surface */
+
+  --font-display: 'Barlow Condensed', system-ui, sans-serif;
+  --font-body: 'Barlow', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  margin: 0;
+  background: #f2dcc0;
+  color: #2a2015;
+  font-family: 'Barlow', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  /* Prevent iOS Safari bounce/rubber-banding from feeling janky mid-set. */
+  overscroll-behavior-y: none;
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Minimum comfortable tap target per spec (48px). */
+.tap-target {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Numbers (weights, reps, dates) always read as data, per the reference
+ * design — every numeric display should use this. */
+.font-numeric {
+  font-family: var(--font-mono);
+}
+
+/* Small uppercase section/field labels (headers, table headers, field
+ * labels, button text) — the Barlow Condensed treatment from the
+ * reference design. Wide tracking so it reads as a "meta" label. */
+.label-heading {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+/* Big bold uppercase headline (screen titles, exercise names) — the other
+ * half of the reference's typographic identity ("BACK SQUAT"). Tighter
+ * tracking than .label-heading since it's read as a word, not a tag. */
+.heading-display {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+}
