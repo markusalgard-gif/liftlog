@@ -5,6 +5,8 @@ import { todayISO } from './format'
 
 export async function logBodyweight(kg: number, date: string = todayISO()): Promise<void> {
   await db.bodyweightEntries.add({ id: uuid(), date, kg })
+  const { schedulePush } = await import('./sync/autoSync')
+  schedulePush('bodyweight')
 }
 
 export async function logFootball(
@@ -13,4 +15,6 @@ export async function logFootball(
   note?: string,
 ): Promise<void> {
   await db.footballSessions.add({ id: uuid(), date, type, note })
+  const { schedulePush } = await import('./sync/autoSync')
+  schedulePush('football')
 }

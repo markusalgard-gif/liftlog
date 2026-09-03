@@ -130,3 +130,7 @@ export function daysSinceLastBackup(): number | null {
   if (!raw) return null
   return Math.floor((Date.now() - Number(raw)) / (24 * 60 * 60 * 1000))
 }
+
+export function clearBackupMarkers(): void {
+  localStorage.removeItem(LAST_BACKUP_KEY)
+}

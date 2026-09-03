@@ -85,6 +85,8 @@ export async function updateSessionNote(sessionId: string, note: string): Promis
 export async function finishSession(sessionId: string): Promise<void> {
   await db.sessions.update(sessionId, { finishedAt: Date.now() })
   await db.appState.update('singleton', { activeSessionId: undefined })
+  const { schedulePush } = await import('./sync/autoSync')
+  schedulePush('session-finish')
 }
 
 export async function setCurrentGym(gymId: string): Promise<void> {

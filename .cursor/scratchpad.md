@@ -284,16 +284,56 @@ Every step was built, automatically verified end-to-end (Playwright against real
 - [x] Step 10 — Polish (done, auto-verified)
 
 **Phase 2 (planned Sept 2026):**
-- [x] Step 12 — DECISION: **Option B** (Google sign-in + Drive sync), with Option A's per-profile isolation built in from the start. Human wants sync before phone deployment.
-- [ ] Step 13 — Google sign-in + Drive sync ("progress saver") ← *current focus*
-  - [ ] 13.2 Google OAuth credentials ← **BLOCKED ON HUMAN.** Nothing else in Step 13 can start until this exists.
-  - [ ] 13.3 / 13.5 Sign-in UI + Drive sync (reuses `exportAllData`/`importAllData` from Step 9)
-  - [ ] 13.1 iOS-PWA OAuth spike ← *needs a deployment; run before 13.6 auto-sync polish*
-  - [ ] 13.6 Auto-sync on finish/open
-  - [ ] 13.4 Per-profile isolation ← *deliberately last: only needed when a second person appears, and safe to add then*
-- [ ] Step 11 — Ship it to the phone (deploy + install + verify offline) ← *deferred at human's request, but still needed to de-risk 13.1*
+- [x] Step 12 — DECISION (updated): for now, **just Markus across phone + laptop**. Proper backend later. Phone install first, Google/Drive paused until asked again.
+- [x] Step 11 — Deploy to GitHub Pages (`https://markusalgard-gif.github.io/liftlog/`) — live, HTTP 200, workflow `33748795937` succeeded.
+  - [ ] 11.3 Human: Safari on iPhone → Add to Home Screen → airplane-mode log a set
+- [x] Step 13 — Google Drive plan **obsolete** (superseded by Phase 3 Supabase)
+
+**Phase 3 — Supabase + Google accounts (planned Sept 2026):**
+Decision: one account, same data on phone + laptop, Google sign-in only. Dexie stays the live source of truth; Supabase is the cloud copy. Logging a set never waits on the network.
+- [x] Step 14 — Supabase foundation (SQL + RLS, client, env wiring). Human ran SQL (Success. No rows returned). Keys in `.env.local`.
+- [x] Step 15 — Google sign-in UI. Human signed in on laptop.
+- [ ] Step 16 — Human iPhone PWA sign-in spike (still needed before trusting the phone)
+- [x] Step 17 — Milestone A: snapshot cloud backup. Human backed up one test exercise to the cloud.
+- [x] Step 18 — Auto-sync on open + session finish. Human confirmed the start screen says Synced.
+- [ ] Step 19 — Regression: offline logging, progression, charts, cross-device sync
 
 ## Executor's Feedback or Assistance Requests
+
+**[Sept 3 2026 — Executor] Step 18 human-verified.** Start screen said Synced. Next: deploy this build (needs a commit + GitHub secrets) so the iPhone can sign in and auto-sync. Then Step 16 on the real phone.
+
+---
+
+Please: refresh, stay signed in, log one set, Finish, confirm the start screen says Synced. Then we can try the same account on another device.
+
+**[Sept 3 2026 — Executor] Step 17 human-verified.** Wiped test history, then human uploaded one test exercise via Back up to cloud. Removed the one-shot wipe so it cannot run again. Next optional: Step 16 (iPhone sign-in) or Step 18 (auto-sync). Cloud backup is manual until 18.
+
+---
+
+Verified: start screen still loads without signing in; Account row present; signed-out state shows the Google button. Did not complete a real Google login (provider not configured yet).
+
+**Human setup still needed for the button to work:**
+1. Supabase → Authentication → URL Configuration: add `http://localhost:5173/liftlog/` and `https://markusalgard-gif.github.io/liftlog/`
+2. Google Cloud OAuth web client + paste Client ID/Secret into Supabase → Authentication → Providers → Google
+3. Supabase callback URL (`https://zyoexikbkzghnzgefadu.supabase.co/auth/v1/callback`) goes in Google's Authorized redirect URIs
+
+What landed:
+- `supabase/migrations/001_initial.sql` — tables + RLS (not applied yet; needs a Supabase project)
+- `src/lib/supabase/client.ts` — `getSupabase()` returns null without keys
+- `.env.example` + GitHub Actions secrets passthrough
+- `@supabase/supabase-js` lazy-loaded so first paint stays local
+
+Success criteria I verified: config unit tests (9/9), `npm run build` clean, start screen loads, session A starts, Finish returns to start. No network calls to supabase.com without keys.
+
+**Human still needs (blocks Step 15):** create a free Supabase project and send me the Project URL + anon public key (or put them in `.env.local`). Do **not** send the service role key.
+
+**[Sept 3 2026 — Planner] Phase 3 approved.** Human chose single-user sync + Google-only sign-in via Supabase. Google Drive (old Step 13) is obsolete. Execute one board step at a time.
+
+---
+
+---
+
+## Executor's Feedback or Assistance Requests (archive)
 
 **Step 2 — done, you confirmed "looks good".**
 
@@ -348,3 +388,7 @@ User provided a reference screenshot of a different app's visual design (peach/c
 - **Never export a module-level `uuid()` call as if it were a stable "seeded id" for later lookups.** `const MAIN_GYM_ID = uuid()` in `seedData.ts` generates a *new* random id every time the module is evaluated (i.e. every page load), even though the actual row written to IndexedDB on the very first run keeps its original id forever. Any code that imports that constant after the first load will silently mismatch the real persisted id (queries return empty, no error thrown — hard to notice). Fix: only use such constants inside the one-time seed routine itself; all later app code must read the real id back from the DB (here, `appState.currentGymId`).
 - Tailwind v4 setup differs from v3: use the `@tailwindcss/vite` plugin in `vite.config.ts` plus an `@import 'tailwindcss'` + `@theme { --color-x: ... }` block in CSS — no `tailwind.config.js` or `postcss.config.js` needed for this simple a setup.
 - Playwright (via `npx playwright install chromium` + a locally installed `playwright` npm package) is a reliable way to headlessly verify the app in an iPhone-sized viewport and catch console/page errors before asking the human to test manually — used for every step's verification and worth reusing.
+- **Supabase must stay optional at boot.** `getSupabase()` returns `null` when `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` are missing. Never throw on missing cloud config — logging a set cannot depend on a project existing. Lazy-import the SDK so it does not sit in the first-paint bundle.
+- **Never open the Vite app at `/` when `base` is `/liftlog/`.** A blank white/black page at `http://localhost:5173/` is usually that, not a crashed React tree. `vite-plugin-pwa` `devOptions.enabled` can register a root service worker that serves `index.html` at `/` so `/src/main.tsx` 404s. Keep PWA off in dev; verify offline via `vite preview`. Add an `index.html` pathname redirect as a belt-and-braces fix.
+- **Milestone A backup is one JSON snapshot per user** (`user_snapshots.payload`), not per-row sync. `Back up` must call `uploadSnapshot()` — never only switch tabs. First-sign-in auto-upload only when there is no cloud row yet; if both sides have sessions, ask. AppState stays local on merge (active session is device-specific).
+- **Auto-sync is snapshot last-write-wins, not live per-row.** `schedulePush` is fire-and-forget after Finish only — never inside `logSet`. `planOpenSync` pulls only when `cloudExportedAt > lastLocalUploadAt`. Signed-out Finish must not attempt upload.

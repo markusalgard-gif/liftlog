@@ -46,10 +46,11 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
       },
       devOptions: {
-        // Lets the offline check run against `npm run dev` too, not just
-        // a production build.
-        enabled: true,
-        type: 'module',
+        // Off in `npm run dev`. A root-scoped dev service worker can serve
+        // index.html at `/` without the /liftlog/ prefix, so the app JS
+        // fails to load and the screen stays blank. Offline checks use
+        // `vite preview` against the production build instead.
+        enabled: false,
       },
     }),
   ],

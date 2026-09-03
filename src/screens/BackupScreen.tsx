@@ -1,5 +1,6 @@
 import { useRef, useState, type ChangeEvent } from 'react'
 import { downloadBackup, exportAllData, importAllData, type BackupFile } from '../lib/backup'
+import CloudBackupActions from '../components/CloudBackupActions'
 
 export default function BackupScreen() {
   const [status, setStatus] = useState<string | null>(null)
@@ -46,6 +47,7 @@ export default function BackupScreen() {
       </header>
 
       <main className="flex-1 space-y-3 px-3 py-3">
+        <CloudBackupActions />
         <button
           onClick={handleExport}
           className="heading-display tap-target w-full rounded-xl border border-line bg-card px-4 text-left text-ink active:bg-card-alt"

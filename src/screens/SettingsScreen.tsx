@@ -4,9 +4,10 @@ import GymsScreen from './GymsScreen'
 import TemplatesScreen from './TemplatesScreen'
 import ExportScreen from './ExportScreen'
 import BackupScreen from './BackupScreen'
+import AccountScreen from './AccountScreen'
 import BodyweightQuickLogSheet from '../components/BodyweightQuickLogSheet'
 
-type SubScreen = 'library' | 'gyms' | 'templates' | 'export' | 'backup' | null
+type SubScreen = 'library' | 'gyms' | 'templates' | 'export' | 'backup' | 'account' | null
 
 export default function SettingsScreen({ currentGymId }: { currentGymId: string }) {
   const [sub, setSub] = useState<SubScreen>(null)
@@ -17,6 +18,7 @@ export default function SettingsScreen({ currentGymId }: { currentGymId: string 
   if (sub === 'templates') return <BackableScreen onBack={() => setSub(null)}><TemplatesScreen /></BackableScreen>
   if (sub === 'export') return <BackableScreen onBack={() => setSub(null)}><ExportScreen /></BackableScreen>
   if (sub === 'backup') return <BackableScreen onBack={() => setSub(null)}><BackupScreen /></BackableScreen>
+  if (sub === 'account') return <BackableScreen onBack={() => setSub(null)}><AccountScreen /></BackableScreen>
 
   return (
     <div className="flex min-h-svh flex-col pb-24">
@@ -25,6 +27,7 @@ export default function SettingsScreen({ currentGymId }: { currentGymId: string 
       </header>
 
       <main className="flex-1 space-y-2 px-3 py-3">
+        <SettingsRow label="Account" hint="Sign in and back up to the cloud" onClick={() => setSub('account')} />
         <SettingsRow label="Exercise Library" hint="Edit, add, archive exercises" onClick={() => setSub('library')} />
         <SettingsRow label="Gyms" hint="Add gyms, toggle per-gym library" onClick={() => setSub('gyms')} />
         <SettingsRow label="Templates" hint="Edit A / B / C / D" onClick={() => setSub('templates')} />

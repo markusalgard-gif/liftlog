@@ -16,6 +16,23 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="LiftLog" />
     <title>LiftLog</title>
+    <script>
+      (function () {
+        var base = '/liftlog/'
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function (regs) {
+            regs.forEach(function (reg) {
+              if (reg.scope.indexOf(base) === -1) {
+                reg.unregister()
+              }
+            })
+          })
+        }
+        if (location.pathname !== base && location.pathname.indexOf(base) !== 0) {
+          location.replace(base + location.search + location.hash)
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
